@@ -1,75 +1,60 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-const Register = ({ setToken, setIsRegistering }) => {
+function Register({ setToken, setError }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(`${API_URL}/auth/register`, {
+      const response = await axios.post(`${API_URL}/auth/register`, {
         email,
         password,
       });
-      setToken(data.token);
-      localStorage.setItem("token", data.token);
-      setError("");
+      const { token } = response.data;
+      localStorage.setItem("token", token);
+      setToken(token);
+      navigate("/");
     } catch (err) {
-      setError(err.response?.data?.error || "Error registering user");
+      console.error("Error registering:", err.message);
+      setError(err.response?.data?.error || "Error registering");
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="p-6 bg-white rounded-lg shadow-lg w-full max-w-md transform transition-all duration-300 hover:shadow-xl"
-      >
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Register</h2>
-        {error && <p className="text-red-500 mb-4 text-sm">{error}</p>}
-        <div className="mb-4">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200"
-            required
-          />
-        </div>
+    <div className="max-w-md mx-auto p-4 bg-gray-100 rounded">
+      <h2 className="text-xl font-bold mb-4">Register</h2>
+      <form onSubmit={handleRegister}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="border p-2 mb-2 w-full"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="border p-2 mb-2 w-full"
+          required
+        />
         <button
           type="submit"
-          className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-200"
+          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
         >
           Register
         </button>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Already have an account?{" "}
-          <button
-            type="button"
-            onClick={() => setIsRegistering(false)}
-            className="text-blue-500 hover:underline focus:outline-none"
-          >
-            Login
-          </button>
-        </p>
       </form>
     </div>
   );
-};
+}
 
 export default Register;
