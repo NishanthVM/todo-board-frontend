@@ -1,0 +1,171 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.nav {
+  margin-bottom: 16px;
+}
+
+.nav-link {
+  margin-right: 16px;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  color: white;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.btn-blue {
+  background-color: #3b82f6;
+}
+
+.btn-blue:hover {
+  background-color: #2563eb;
+}
+
+.btn-red {
+  background-color: #ef4444;
+}
+
+.btn-red:hover {
+  background-color: #dc2626;
+}
+
+.btn-gray {
+  background-color: #6b7280;
+}
+
+.btn-gray:hover {
+  background-color: #4b5563;
+}
+
+.btn-green {
+  background-color: #10b981;
+}
+
+.btn-green:hover {
+  background-color: #059669;
+}
+
+.error {
+  color: #ef4444;
+  margin-bottom: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.card {
+  padding: 16px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  min-height: 200px;
+}
+
+.card-white {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 8px;
+  transition: transform 0.3s;
+}
+
+.card-white:hover {
+  transform: scale(1.05);
+}
+
+.card-dragging {
+  opacity: 0.75;
+  background-color: #dbeafe;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.input {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  width: 100%;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.form {
+  padding: 16px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+}
+
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+}
+
+.auth-form {
+  max-width: 448px;
+  width: 100%;
+  padding: 24px;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.auth-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.auth-link {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}

@@ -1,83 +1,119 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 import io from "socket.io-client";
 import Board from "./components/Board";
-import ActivityLog from "./components/ActivityLog";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import "./styles.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const SOCKET_URL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL.replace("/api", "")
+  : "http://localhost:5000";
 
-const App = () => {
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
-  const [isRegistering, setIsRegistering] = useState(false);
+function AppContent() {
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [error, setError] = useState("");
   const [socket, setSocket] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Initialize Socket.IO
-    const socketInstance = io(import.meta.env.VITE_API_URL, {
-      transports: ["websocket"],
-    });
-    console.log("Socket initialized in App:", socketInstance); // Debug
-    setSocket(socketInstance);
-
-    // Clean up socket on unmount
-    return () => {
-      socketInstance.disconnect();
-      console.log("Socket disconnected");
-    };
+    console.log("Initial token:", token);
+    if (!token) {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        console.log("Restoring token from localStorage:", storedToken);
+        setToken(storedToken);
+      }
+    }
   }, []);
 
   useEffect(() => {
-    console.log("Token:", token); // Debug
-    if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
-    }
-  }, [token]);
+    console.log("Attempting to connect to Socket.IO at:", SOCKET_URL);
+    const socketInstance = io(SOCKET_URL, {
+      transports: ["websocket"],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+    socketInstance.on("connect", () => {
+      console.log("Socket.IO connected:", socketInstance.id);
+    });
+    socketInstance.on("connect_error", (err) => {
+      console.error("Socket.IO connect error:", err.message, err);
+      setError(
+        "Failed to connect to real-time updates. Please try again later."
+      );
+    });
+    socketInstance.on("disconnect", (reason) => {
+      console.log("Socket.IO disconnected:", reason);
+    });
+    setSocket(socketInstance);
+    return () => {
+      socketInstance.disconnect();
+      console.log("Socket.IO disconnected on cleanup");
+    };
+  }, []);
 
   const handleLogout = () => {
+    console.log("Logging out, clearing token");
     localStorage.removeItem("token");
     setToken(null);
+    socket?.disconnect();
+    navigate("/login");
   };
 
-  if (!token) {
-    return isRegistering ? (
-      <Register setToken={setToken} setIsRegistering={setIsRegistering} />
-    ) : (
-      <Login
-        setToken={setToken}
-        setIsRegistering={setIsRegistering}
-        setError={setError}
-        error={error}
-      />
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Collaborative To-Do Board</h1>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors duration-200"
-        >
-          Logout
-        </button>
-      </div>
-      {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-      {socket ? (
-        <>
-          <Board token={token} socket={socket} setError={setError} />
-          <ActivityLog token={token} socket={socket} />
-        </>
+    <div className="container">
+      {error && <div className="error">{error}</div>}
+      {token ? (
+        <nav className="nav">
+          <Link to="/" className="nav-link">
+            Task Board
+          </Link>
+          <button onClick={handleLogout} className="btn btn-red">
+            Logout
+          </button>
+        </nav>
       ) : (
-        <p className="text-center text-gray-500">Connecting to server...</p>
+        <div className="error">No token found, please log in.</div>
       )}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            token ? (
+              <Board token={token} socket={socket} setError={setError} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/login"
+          element={<Login setToken={setToken} setError={setError} />}
+        />
+        <Route
+          path="/register"
+          element={<Register setToken={setToken} setError={setError} />}
+        />
+      </Routes>
     </div>
   );
-};
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
 
 export default App;
